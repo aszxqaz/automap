@@ -1,6 +1,9 @@
 package automap
 
 type IMap[K comparable, V any] interface {
+	Keys() []K
+	Values() []V
+	Len() int
 	Get(k K) (V, bool)
 	Set(k K, v V)
 	Delete(k K) bool
@@ -8,12 +11,34 @@ type IMap[K comparable, V any] interface {
 	Where(prd func(k K, v V) bool) (V, bool)
 	Update(k K, fn func(k K, v V) V) bool
 	UpdateWhere(prd func(k K, v V) bool, fn func(k K, v V) V) bool
-	Len() int
 	Reduce(init any, fn func(k K, v V, r any) any) any
 }
 
 type Map[K comparable, V any] struct {
 	inner map[K]V
+}
+
+func (m *Map[K, V]) Keys() []K {
+	m.maybeInit()
+	keys := make([]K, 0, len(m.inner))
+	for k := range m.inner {
+		keys = append(keys, k)
+	}
+	return keys
+}
+
+func (m *Map[K, V]) Values() []V {
+	m.maybeInit()
+	values := make([]V, 0, len(m.inner))
+	for _, v := range m.inner {
+		values = append(values, v)
+	}
+	return values
+}
+
+func (m *Map[K, V]) Len() int {
+	m.maybeInit()
+	return len(m.inner)
 }
 
 func (m *Map[K, V]) Get(k K) (V, bool) {
@@ -80,11 +105,6 @@ func (m *Map[K, V]) UpdateWhere(prd func(k K, v V) bool, fn func(k K, v V) V) bo
 		}
 	}
 	return ok
-}
-
-func (m *Map[K, V]) Len() int {
-	m.maybeInit()
-	return len(m.inner)
 }
 
 func (m *Map[K, V]) Reduce(init any, fn func(k K, v V, r any) any) any {

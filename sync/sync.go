@@ -7,6 +7,9 @@ import (
 )
 
 type IMap[K comparable, V any] interface {
+	Keys() []K
+	Values() []V
+	Len() int
 	Get(k K) (V, bool)
 	Set(k K, v V)
 	Delete(k K) bool
@@ -14,7 +17,6 @@ type IMap[K comparable, V any] interface {
 	Where(prd func(k K, v V) bool) (V, bool)
 	Update(k K, fn func(k K, v V) V) bool
 	UpdateWhere(prd func(k K, v V) bool, fn func(k K, v V) V) bool
-	Len() int
 	Reduce(init any, fn func(k K, v V, r any) any) any
 	Transact(fn func(m automap.Map[K, V]))
 }
@@ -22,6 +24,18 @@ type IMap[K comparable, V any] interface {
 type Map[K comparable, V any] struct {
 	inner automap.Map[K, V]
 	mu    sync.RWMutex
+}
+
+func (m *Map[K, V]) Keys() []K {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	return m.inner.Keys()
+}
+
+func (m *Map[K, V]) Values() []V {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	return m.inner.Values()
 }
 
 func (m *Map[K, V]) Get(k K) (V, bool) {

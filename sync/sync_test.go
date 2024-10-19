@@ -10,6 +10,21 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestKeysValuesLen(t *testing.T) {
+	var m automap_sync.Map[int, string]
+
+	m.Set(1, "one")
+	m.Set(2, "two")
+
+	keys := m.Keys()
+	assert.ElementsMatch(t, []int{1, 2}, keys)
+
+	values := m.Values()
+	assert.ElementsMatch(t, []string{"one", "two"}, values)
+
+	assert.Equal(t, 2, m.Len())
+}
+
 func TestGet(t *testing.T) {
 	var m1 automap_sync.Map[int, *string]
 
