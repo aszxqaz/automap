@@ -64,11 +64,11 @@ func TestWhere(t *testing.T) {
 	m.Set(1, "one")
 	m.Set(2, "two")
 
-	s, ok := m.Where(func(k int, v string) bool { return v == "one" })
+	s, ok := m.FirstWhere(func(k int, v string) bool { return v == "one" })
 	assert.True(t, ok)
 	assert.Equal(t, "one", s)
 
-	s, ok = m.Where(func(k int, v string) bool { return v == "three" })
+	s, ok = m.FirstWhere(func(k int, v string) bool { return v == "three" })
 	assert.False(t, ok)
 	assert.Equal(t, "", s)
 }

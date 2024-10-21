@@ -6,21 +6,6 @@ import (
 	"github.com/aszxqaz/automap"
 )
 
-type IMap[K comparable, V any] interface {
-	Keys() []K
-	Values() []V
-	Len() int
-	Get(k K) (V, bool)
-	Set(k K, v V)
-	Delete(k K) bool
-	DeleteWhere(prd func(k K, v V) bool) bool
-	Where(prd func(k K, v V) bool) (V, bool)
-	Update(k K, fn func(k K, v V) V) bool
-	UpdateWhere(prd func(k K, v V) bool, fn func(k K, v V) V) bool
-	Reduce(init any, fn func(k K, v V, r any) any) any
-	Transact(fn func(m automap.Map[K, V]))
-}
-
 type Map[K comparable, V any] struct {
 	inner automap.Map[K, V]
 	mu    sync.RWMutex
@@ -62,10 +47,16 @@ func (m *Map[K, V]) DeleteWhere(prd func(k K, v V) bool) bool {
 	return m.inner.DeleteWhere(prd)
 }
 
-func (m *Map[K, V]) Where(prd func(k K, v V) bool) (V, bool) {
+func (m *Map[K, V]) FirstWhere(prd func(k K, v V) bool) (V, bool) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	return m.inner.Where(prd)
+	return m.inner.FirstWhere(prd)
+}
+
+func (m *Map[K, V]) ValuesWhere(prd func(k K, v V) bool) []V {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	return m.inner.ValuesWhere(prd)
 }
 
 func (m *Map[K, V]) Update(k K, fn func(k K, v V) V) bool {
