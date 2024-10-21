@@ -13,7 +13,7 @@ type IMap[K comparable, V any] interface {
 	Get(k K) (V, bool)
 	Set(k K, v V)
 	Delete(k K) bool
-	DeleteWhere(prd func(k K, v V) bool, fn func(k K, v V) V) bool
+	DeleteWhere(prd func(k K, v V) bool) bool
 	Where(prd func(k K, v V) bool) (V, bool)
 	Update(k K, fn func(k K, v V) V) bool
 	UpdateWhere(prd func(k K, v V) bool, fn func(k K, v V) V) bool
@@ -56,10 +56,10 @@ func (m *Map[K, V]) Delete(k K) bool {
 	return m.inner.Delete(k)
 }
 
-func (m *Map[K, V]) DeleteWhere(prd func(k K, v V) bool, fn func(k K, v V) V) bool {
+func (m *Map[K, V]) DeleteWhere(prd func(k K, v V) bool) bool {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	return m.inner.DeleteWhere(prd, fn)
+	return m.inner.DeleteWhere(prd)
 }
 
 func (m *Map[K, V]) Where(prd func(k K, v V) bool) (V, bool) {
